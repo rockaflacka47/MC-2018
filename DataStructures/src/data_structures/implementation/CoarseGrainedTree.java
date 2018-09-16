@@ -5,62 +5,83 @@ import java.util.ArrayList;
 import data_structures.Sorted;
 
 public class CoarseGrainedTree<T extends Comparable<T>> implements Sorted<T> {
-    TreeNode<T> start;
+    private static class TreeNode<T> {
+        public T data;
+        public TreeNode<T> left = null;
+        public TreeNode<T> right = null;
 
-    public void add(T t) {
-        if(start == null){
-            start = new TreeNode<T>(t);
-        }
-        else{
-            findPlacement(t, start);
+        public TreeNode(T data) {
+            this.data = data;
         }
     }
 
-    public void remove(T t) {
-        if(start.data.compareTo(t) == 0 && start.left == null && start.right == null){
-            start = null;
-        }
-        else{
-            removeNode(start, t);
-        }
+    private TreeNode<T> root;
+
+    public synchronized void add(T t) {
+        root = addOrReplaceNode(root, t);
     }
 
-    private void removeNode(TreeNode<T> curr, T t){
-        if(curr.data.compareTo(t) == 0){
-            if(curr.left == null && curr.right == null){
-                
+    private TreeNode<T> addOrReplaceNode(TreeNode<T> node, T t) {
+        if (node == null) {
+            return new TreeNode<>(t);
+        } else if (t.compareTo(node.data) < 0) {
+            node.left = addOrReplaceNode(node.left, t);
+        } else {
+            node.right = addOrReplaceNode(node.right, t);
+        }
+
+        return node;
+    }
+
+    public synchronized void remove(T t) {
+        root = removeOrReplaceNode(root, t);
+    }
+
+    private TreeNode<T> removeOrReplaceNode(TreeNode<T> node, T t) {
+        if (node != null) {
+            if (t.compareTo(node.data) == 0) {
+                if (node.left == null) {
+                    return node.right;
+                } else if (node.right == null) {
+                    return node.left;
+                } else {
+                    TreeNode<T> parent = null;
+                    TreeNode<T> nodeToMove = node.left;
+                    while (nodeToMove.right != null) {
+                        parent = nodeToMove;
+                        nodeToMove = nodeToMove.right;
+                    }
+
+                    if (parent != null) {
+                        parent.right = nodeToMove.left;
+                        nodeToMove.left = node.left;
+                    }
+
+                    nodeToMove.right = node.right;
+
+                    return nodeToMove;
+                }
+            } else if (t.compareTo(node.data) < 0) {
+                node.left = removeOrReplaceNode(node.left, t);
+            } else {
+                node.right = removeOrReplaceNode(node.right, t);
             }
         }
+
+        return node;
     }
 
     public ArrayList<T> toArrayList() {
-        return arrayList(start, new ArrayList<T>());
+        ArrayList<T> list = new ArrayList<>();
+        addNodeToArrayList(root, list);
+        return list;
     }
 
-    private ArrayList<T> arrayList(TreeNode<T> curr, ArrayList<T> ret){
-        if(curr.left != null) {
-            ret = arrayList(curr.left, ret);
-        }
-        ret.add(curr.data);
-        if(curr.right != null) {
-            ret = arrayList(curr.right, ret);
-        }
-        return ret;
-    }
-
-    private void findPlacement(T t, TreeNode<T> curr){
-        if(t.compareTo(curr.data) <= 0 && curr.left == null){
-            curr.left = new TreeNode<T>(t);
-        }
-        else if(t.compareTo(curr.data) >= 0 && curr.right == null){
-            curr.right = new TreeNode<T>(t);
-        }
-        else if(t.compareTo(curr.data) <= 0){
-            findPlacement(t, curr.left);
-        }
-        else{
-            findPlacement(t, curr.right);
-            
+    private void addNodeToArrayList(TreeNode<T> node, ArrayList<T> list) {
+        if (node != null) {
+            addNodeToArrayList(node.left, list);
+            list.add(node.data);
+            addNodeToArrayList(node.right, list);
         }
     }
 }
