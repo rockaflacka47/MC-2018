@@ -53,8 +53,11 @@ public class CoarseGrainedTree<T extends Comparable<T>> implements Sorted<T> {
                     }
 
                     if (parent != null) {
+                        assert nodeToMove != node.left;
                         parent.right = nodeToMove.left;
                         nodeToMove.left = node.left;
+                    } else {
+                        assert nodeToMove == node.left;
                     }
 
                     nodeToMove.right = node.right;
