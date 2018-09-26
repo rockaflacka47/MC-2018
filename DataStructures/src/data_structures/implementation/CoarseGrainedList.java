@@ -10,7 +10,7 @@ public class CoarseGrainedList<T extends Comparable<T>> implements Sorted<T> {
     private Node<T> end;
     private int length = 0;
 
-    public void add(T t){
+    public synchronized void add(T t){
         Node<T> newNode = new Node<T>(t);
         if(start == null && end == null){
             start = newNode;
@@ -38,7 +38,7 @@ public class CoarseGrainedList<T extends Comparable<T>> implements Sorted<T> {
         }
     }
 
-    public void remove(T t) {
+    public synchronized void remove(T t) {
         if(start == null){
             return;
         }
