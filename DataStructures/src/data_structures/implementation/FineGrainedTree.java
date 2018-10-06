@@ -40,6 +40,7 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
     public void add(T t) {
         treeLock.lock();
 
+        // Find the leaf to insert the new node at
         Node<T> parentNode = null;
         Node<T> currentNode = root;
         while (currentNode != null) {
@@ -54,6 +55,8 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
             }
         }
 
+        // Insert the new node. We do this here rather than in the middle of the
+        // loop in the name of preserving the structure used in remove
         Node<T> newNode = new Node<>(t);
         if (parentNode == null) {
             root = newNode;
@@ -69,6 +72,7 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
     public void remove(T t) {
         treeLock.lock();
 
+        // Find the node to be removed
         Node<T> parentNode = null;
         Node<T> currentNode = root;
         while (currentNode != null && t.compareTo(currentNode.data) != 0) {
@@ -83,13 +87,18 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
             }
         }
 
+        // If we found it, remove it
         if (currentNode != null) {
+            assert t.compareTo(currentNode.data) == 0;
+
+            // Compute the modified subtree to replace the current node
             Node<T> modifiedSubtree;
             if (currentNode.left == null) {
                 modifiedSubtree = currentNode.right;
             } else if (currentNode.right == null) {
                 modifiedSubtree = currentNode.left;
             } else {
+                // Find the righmost node of the left subtree
                 Node<T> substitutionParent = null;
                 Node<T> nodeToSubstitute = currentNode.left;
                 nodeToSubstitute.lock();
@@ -103,8 +112,10 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
                     nodeToSubstitute = nodeToSubstitute.right;
                 }
 
+                // Substitute the data to be removed with that of nodeToSubstitute
                 currentNode.data = nodeToSubstitute.data;
 
+                // Remove nodeToSubstitute from the tree
                 if (substitutionParent != null) {
                     assert nodeToSubstitute != currentNode.left;
                     substitutionParent.right = nodeToSubstitute.left;
@@ -117,6 +128,7 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
                 modifiedSubtree = currentNode;
             }
 
+            // Replace the current node with the modified subtree
             if (parentNode == null) {
                 root = modifiedSubtree;
             } else if (currentNode == parentNode.left) {
