@@ -5,39 +5,39 @@ import java.util.ArrayList;
 import data_structures.Sorted;
 
 public class CoarseGrainedTree<T extends Comparable<T>> implements Sorted<T> {
-    private static class TreeNode<T> {
+    private static class Node<T> {
         public T data;
-        public TreeNode<T> left = null;
-        public TreeNode<T> right = null;
+        public Node<T> left = null;
+        public Node<T> right = null;
 
-        public TreeNode(T data) {
+        public Node(T data) {
             this.data = data;
         }
     }
 
-    private TreeNode<T> root;
+    private Node<T> root = null;
 
     public synchronized void add(T t) {
-        root = addOrReplaceNode(root, t);
+        root = addToSubtree(root, t);
     }
 
-    private TreeNode<T> addOrReplaceNode(TreeNode<T> node, T t) {
+    private static <T extends Comparable<T>> Node<T> addToSubtree(Node<T> node, T t) {
         if (node == null) {
-            return new TreeNode<>(t);
+            return new Node<>(t);
         } else if (t.compareTo(node.data) < 0) {
-            node.left = addOrReplaceNode(node.left, t);
+            node.left = addToSubtree(node.left, t);
         } else {
-            node.right = addOrReplaceNode(node.right, t);
+            node.right = addToSubtree(node.right, t);
         }
 
         return node;
     }
 
     public synchronized void remove(T t) {
-        root = removeOrReplaceNode(root, t);
+        root = removeFromSubtree(root, t);
     }
 
-    private TreeNode<T> removeOrReplaceNode(TreeNode<T> node, T t) {
+    private static <T extends Comparable<T>> Node<T> removeFromSubtree(Node<T> node, T t) {
         if (node != null) {
             if (t.compareTo(node.data) == 0) {
                 if (node.left == null) {
@@ -45,29 +45,29 @@ public class CoarseGrainedTree<T extends Comparable<T>> implements Sorted<T> {
                 } else if (node.right == null) {
                     return node.left;
                 } else {
-                    TreeNode<T> parent = null;
-                    TreeNode<T> nodeToMove = node.left;
-                    while (nodeToMove.right != null) {
-                        parent = nodeToMove;
-                        nodeToMove = nodeToMove.right;
+                    Node<T> parent = null;
+                    Node<T> nodeToSubstitute = node.left;
+                    while (nodeToSubstitute.right != null) {
+                        parent = nodeToSubstitute;
+                        nodeToSubstitute = nodeToSubstitute.right;
                     }
+
+                    node.data = nodeToSubstitute.data;
 
                     if (parent != null) {
-                        assert nodeToMove != node.left;
-                        parent.right = nodeToMove.left;
-                        nodeToMove.left = node.left;
+                        assert nodeToSubstitute != node.left;
+                        parent.right = nodeToSubstitute.left;
                     } else {
-                        assert nodeToMove == node.left;
+                        assert nodeToSubstitute == node.left;
+                        node.left = nodeToSubstitute.left;
                     }
 
-                    nodeToMove.right = node.right;
-
-                    return nodeToMove;
+                    return nodeToSubstitute;
                 }
             } else if (t.compareTo(node.data) < 0) {
-                node.left = removeOrReplaceNode(node.left, t);
+                node.left = removeFromSubtree(node.left, t);
             } else {
-                node.right = removeOrReplaceNode(node.right, t);
+                node.right = removeFromSubtree(node.right, t);
             }
         }
 
@@ -76,15 +76,15 @@ public class CoarseGrainedTree<T extends Comparable<T>> implements Sorted<T> {
 
     public ArrayList<T> toArrayList() {
         ArrayList<T> list = new ArrayList<>();
-        addNodeToArrayList(root, list);
+        addSubtreeToArrayList(root, list);
         return list;
     }
 
-    private void addNodeToArrayList(TreeNode<T> node, ArrayList<T> list) {
+    private static <T> void addSubtreeToArrayList(Node<T> node, ArrayList<T> list) {
         if (node != null) {
-            addNodeToArrayList(node.left, list);
+            addSubtreeToArrayList(node.left, list);
             list.add(node.data);
-            addNodeToArrayList(node.right, list);
+            addSubtreeToArrayList(node.right, list);
         }
     }
 }
