@@ -11,7 +11,7 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
         public T data;
         public Node<T> left = null;
         public Node<T> right = null;
-        public final Lock lock = new ReentrantLock();
+        private final Lock lock = new ReentrantLock();
 
         public Node(T data) {
             this.data = data;
@@ -25,7 +25,7 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
             lock.unlock();
         }
 
-        private static <T> void unlockNullable(Node<T> node, Lock lock) {
+        public static <T> void unlockNullable(Node<T> node, Lock lock) {
             if (node == null) {
                 lock.unlock();
             } else {
