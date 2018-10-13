@@ -2,49 +2,48 @@ package data_structures.implementation;
 
 import java.util.ArrayList;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import data_structures.Sorted;
 
 public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
 
  
     private Node<T> start;
-    private Node<T> end;
+    private final Lock lock = new ReentrantLock();
 
     public void add(T t){
+        //start.lock();
+        System.out.println(t);
         Node<T> newNode = new Node<T>(t);
-        if(start == null && end == null){
+        if(start == null){
             start = newNode;
-            end = newNode;
         }
         else if(newNode.data.compareTo(start.data) < 0) {
             newNode.next = start;
             start = newNode;   
         }
-        else if(newNode.data.compareTo(end.data) >= 0){
-            end.next = newNode;
-            end = newNode;   
-        }
-        else if(start == end){
+        else if(start.next == null){
             start.next = newNode;
-            end = newNode; 
         }
         else {
            addAndSort(newNode);
         }
+
+        System.out.println(this.toArrayList());
+        System.out.println("\n\n");
     }
 
     public void remove(T t) {
         if(start == null){
             return;
         }
-        else if(start.data.compareTo(t) == 0 && end.data.compareTo(t) == 0){
+        else if(start.data.compareTo(t) == 0 && start.next == null){
             start = null;
-            end = null;
-            
         }
        else if(start.data.compareTo(t) == 0){
-            start = start.next;
-            
+            start = start.next;     
        }
        else{
            Node<T> curr = start.next;
@@ -52,11 +51,8 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
            
            while(curr != null){
                if(curr.data.compareTo(t) == 0){
-                
                        prev.next = curr.next;
-                       
                        return;
-
                }
                 prev = prev.next;
                 curr = curr.next;
@@ -86,8 +82,13 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
                 prev.next = newNode;
                 return;
             }
+            if(curr.next == null){
+                curr.next = newNode;
+                break;
+            }
                 prev = curr;
                 curr = curr.next;
+            
         }
     }
 }
