@@ -22,6 +22,10 @@ public class Node<T>{
         lock.lock();
     }
 
+    public boolean isLocked(){
+        return lock.tryLock();
+    }
+
     public void unlock() {
         lock.unlock();
     }

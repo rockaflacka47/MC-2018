@@ -11,28 +11,30 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
 
  
     private Node<T> start;
-    private final Lock lock = new ReentrantLock();
+    private final Lock listLock = new ReentrantLock();
 
     public void add(T t){
-        //start.lock();
-        System.out.println(t);
+        if(start == null)
+            listLock.lock();
+        else
+            start.lock();
         Node<T> newNode = new Node<T>(t);
         if(start == null){
             start = newNode;
+            listLock.unlock();
         }
         else if(newNode.data.compareTo(start.data) < 0) {
             newNode.next = start;
             start = newNode;   
+            start.next.unlock();
         }
         else if(start.next == null){
             start.next = newNode;
+            start.unlock();
         }
         else {
            addAndSort(newNode);
         }
-
-        System.out.println(this.toArrayList());
-        System.out.println("\n\n");
     }
 
     public void remove(T t) {
@@ -74,21 +76,31 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
 
     private void addAndSort(Node<T> newNode){
         Node<T> prev = start;
-        Node<T> curr = start.next;
-        
-        while(curr != null){
-            if(newNode.data.compareTo(curr.data)< 0){
+          
+        prev.lock();
+
+        try{
+            Node<T> curr = start.next;
+            curr.lock();
+            try{
+                while(newNode.data.compareTo(curr.data) > 0 && curr != null){
+                    prev.unlock();
+                    prev = curr;
+                    curr = curr.next;
+                    if(curr == null) break;
+                    curr.lock();
+                }
                 newNode.next = curr;
                 prev.next = newNode;
-                return;
+            } finally {
+                if(curr != null){
+                    curr.unlock();
+                }
             }
-            if(curr.next == null){
-                curr.next = newNode;
-                break;
-            }
-                prev = curr;
-                curr = curr.next;
-            
         }
+        finally {
+            prev.unlock();
+        }
+       
     }
 }
