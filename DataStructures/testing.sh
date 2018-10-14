@@ -2,7 +2,6 @@
 
 ./bin/build.sh
 
-<<<<<<< HEAD
 ./bin/test_data_structures fgt 1 50000 0 >> results1.txt
 ./bin/test_data_structures fgt 2 50000 0 >> results2.txt
 ./bin/test_data_structures fgt 3 50001 0 >> results3.txt
@@ -38,40 +37,3 @@
 ./bin/test_data_structures fgt 6 49998 8 >> results30.txt
 ./bin/test_data_structures fgt 7 50001 8 >> results31.txt
 ./bin/test_data_structures fgt 8 50000 8 >> results32.txt
-=======
-./bin/test_data_structures cgl 1 50000 0 >> results.txt
-./bin/test_data_structures cgl 2 50000 0 >> results.txt
-./bin/test_data_structures cgl 3 50001 0 >> results.txt
-./bin/test_data_structures cgl 4 50000 0 >> results.txt
-./bin/test_data_structures cgl 5 50000 0 >> results.txt
-./bin/test_data_structures cgl 6 49998 0 >> results.txt
-./bin/test_data_structures cgl 7 50001 0 >> results.txt
-./bin/test_data_structures cgl 8 50000 0 >> results.txt
-
-./bin/test_data_structures cgl 1 50000 2 >> results.txt
-./bin/test_data_structures cgl 2 50000 2 >> results.txt
-./bin/test_data_structures cgl 3 50001 2 >> results.txt
-./bin/test_data_structures cgl 4 50000 2 >> results.txt
-./bin/test_data_structures cgl 5 50000 2 >> results.txt
-./bin/test_data_structures cgl 6 49998 2 >> results.txt
-./bin/test_data_structures cgl 7 50001 2 >> results.txt
-./bin/test_data_structures cgl 8 50000 2 >> results.txt
-
-./bin/test_data_structures cgl 1 50000 4 >> results.txt
-./bin/test_data_structures cgl 2 50000 4 >> results.txt
-./bin/test_data_structures cgl 3 50001 4 >> results.txt
-./bin/test_data_structures cgl 4 50000 4 >> results.txt
-./bin/test_data_structures cgl 5 50000 4 >> results.txt
-./bin/test_data_structures cgl 6 49998 4 >> results.txt
-./bin/test_data_structures cgl 7 50001 4 >> results.txt
-./bin/test_data_structures cgl 8 50000 4 >> results.txt
-
-./bin/test_data_structures cgl 1 50000 8 >> results.txt
-./bin/test_data_structures cgl 2 50000 8 >> results.txt
-./bin/test_data_structures cgl 3 50001 8 >> results.txt
-./bin/test_data_structures cgl 4 50000 8 >> results.txt
-./bin/test_data_structures cgl 5 50000 8 >> results.txt
-./bin/test_data_structures cgl 6 49998 8 >> results.txt
-./bin/test_data_structures cgl 7 50001 8 >> results.txt
-./bin/test_data_structures cgl 8 50000 8 >> results.txt
->>>>>>> 20691643b53161494d0d61de833d6e42b123cd1e
