@@ -14,8 +14,6 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
     private final Lock lock = new ReentrantLock();
 
     public void add(T t){
-        //start.lock();
-        System.out.println(t);
         Node<T> newNode = new Node<T>(t);
         if(start == null){
             start = newNode;
@@ -30,9 +28,6 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
         else {
            addAndSort(newNode);
         }
-
-        System.out.println(this.toArrayList());
-        System.out.println("\n\n");
     }
 
     public void remove(T t) {
