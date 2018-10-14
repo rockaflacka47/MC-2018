@@ -81,7 +81,6 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
         if (currentNode != null && t.compareTo(currentNode.data) == 0) {
             currentNode.lock();
 
-            // Replace the current node with the modified subtree
             if (previousNode == null) {
                 head = currentNode.next;
             } else {
