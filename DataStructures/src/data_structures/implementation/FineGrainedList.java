@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import data_structures.Sorted;
 
 public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
-    private static final class Node<T> {
+    private static final class Node<T extends Comparable<T>> {
         public T data;
         public Node<T> next = null;
         private final Lock lock = new ReentrantLock();
@@ -21,11 +21,16 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
             lock.lock();
         }
 
+        public int lockAndCompareTo(T other) {
+            lock();
+            return data.compareTo(other);
+        }
+
         public void unlock() {
             lock.unlock();
         }
 
-        public static <T> void unlockNullable(Node<T> node, Lock lock) {
+        public static <T extends Comparable<T>> void unlockNullable(Node<T> node, Lock lock) {
             if (node == null) {
                 lock.unlock();
             } else {
@@ -43,12 +48,15 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
         // Find the nodes to insert the new node between
         Node<T> previousNode = null;
         Node<T> nextNode = head;
-        while (nextNode != null && t.compareTo(nextNode.data) > 0) {
-            nextNode.lock();
+        while (nextNode != null && nextNode.lockAndCompareTo(t) < 0) {
             Node.unlockNullable(previousNode, listLock);
 
             previousNode = nextNode;
             nextNode = nextNode.next;
+        }
+
+        if (nextNode != null) {
+            nextNode.unlock();
         }
 
         // Insert the new node
@@ -69,8 +77,7 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
         // Find the node to be removed
         Node<T> previousNode = null;
         Node<T> currentNode = head;
-        while (currentNode != null && t.compareTo(currentNode.data) > 0) {
-            currentNode.lock();
+        while (currentNode != null && currentNode.lockAndCompareTo(t) < 0) {
             Node.unlockNullable(previousNode, listLock);
 
             previousNode = currentNode;
@@ -79,8 +86,6 @@ public class FineGrainedList<T extends Comparable<T>> implements Sorted<T> {
 
         // If we found it, remove it
         if (currentNode != null && t.compareTo(currentNode.data) == 0) {
-            currentNode.lock();
-
             if (previousNode == null) {
                 head = currentNode.next;
             } else {
