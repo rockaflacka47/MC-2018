@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import data_structures.Sorted;
 
 public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
-    private static final class Node<T> {
+    private static final class Node<T extends Comparable<T>> {
         public T data;
         public Node<T> left = null;
         public Node<T> right = null;
@@ -21,11 +21,16 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
             lock.lock();
         }
 
+        public int lockAndCompareTo(T other) {
+            lock();
+            return data.compareTo(other);
+        }
+
         public void unlock() {
             lock.unlock();
         }
 
-        public static <T> void unlockNullable(Node<T> node, Lock lock) {
+        public static <T extends Comparable<T>> void unlockNullable(Node<T> node, Lock lock) {
             if (node == null) {
                 lock.unlock();
             } else {
@@ -75,8 +80,7 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
         // Find the node to be removed
         Node<T> parentNode = null;
         Node<T> currentNode = root;
-        while (currentNode != null && t.compareTo(currentNode.data) != 0) {
-            currentNode.lock();
+        while (currentNode != null && currentNode.lockAndCompareTo(t) != 0) {
             Node.unlockNullable(parentNode, treeLock);
 
             parentNode = currentNode;
@@ -125,6 +129,8 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
                     currentNode.left = nodeToSubstitute.left;
                 }
 
+                currentNode.unlock();
+
                 modifiedSubtree = currentNode;
             }
 
@@ -148,7 +154,7 @@ public class FineGrainedTree<T extends Comparable<T>> implements Sorted<T> {
         return list;
     }
 
-    private static <T> void addSubtreeToArrayList(Node<T> node, ArrayList<T> list) {
+    private static <T extends Comparable<T>> void addSubtreeToArrayList(Node<T> node, ArrayList<T> list) {
         if (node != null) {
             addSubtreeToArrayList(node.left, list);
             list.add(node.data);
